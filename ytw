@@ -1,0 +1,17 @@
+#!/bin/bash
+# deps: jq, curl
+
+
+instance=vid.priv.au
+tmpfile=tmpfile.json
+
+curlurl () {
+    echo $(curl -s https://"$instance"/api/v1/search?q="$1") >> "$tmpfile"
+}
+
+search () {
+    curlurl "$1"
+    cat "$tmpfile" | jq
+}
+
+search "$1"
