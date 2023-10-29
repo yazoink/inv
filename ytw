@@ -1,17 +1,59 @@
 #!/bin/bash
 # deps: jq, curl
 
-
 instance=vid.priv.au
-tmpfile=tmpfile.json
+declare -a types
+declare -a titles
+declare -a videoids
+declare -a authors
 
-curlurl () {
-    echo $(curl -s https://"$instance"/api/v1/search?q="$1") >> "$tmpfile"
+gettypes () {
+    while read -r line; do
+        types+=("$line")
+    done < <(curl -s "https://$instance/api/v1/search?q=$1" | jq -r '.[].type')
+}
+
+gettitles () {
+    while read -r line; do
+        titles+=("$line")
+    done < <(curl -s "https://$instance/api/v1/search?q=$1" | jq -r '.[].title')
+}
+
+getvideoids () {
+    while read -r line; do
+        videoids+=("$line")
+    done < <(curl -s "https://$instance/api/v1/search?q=$1" | jq -r '.[].videoId')
+}
+
+getauthors () {
+    while read -r line; do
+        authors+=("$line")
+    done < <(curl -s "https://$instance/api/v1/search?q=$1" | jq -r '.[].author')
+}
+
+printresults () {
+    for ((i=0; i<${#videoids[@]}; i++)); do
+        if [[ "${types[$i]}" == *"video"* ]]; then
+            printresult "$i"
+        fi
+    done
+    results=$((i+1))
+    printf "%s results found\n" "$results"
+}
+
+printresult () {
+    printf "%s [%s]\n\thttps://%s/watch?v=%s\n\n" "${titles[$1]}" "${authors[$1]}" "$instance" "${videoids[$1]}"
 }
 
 search () {
-    curlurl "$1"
-    cat "$tmpfile" | jq
+    printf "Getting video URLS...\n"
+    getvideoids "$1"
+    printf "Getting video titles...\n"
+    gettitles "$1"
+    printf "Getting video details...\n"
+    getauthors "$1"
+    gettypes "$1"
+    printresults 
 }
 
 search "$1"
