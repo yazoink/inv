@@ -10,30 +10,30 @@ declare -a authors
 gettypes () {
     while read -r line; do
         types+=("$line")
-    done < <(curl -s "https://"$instance"/api/v1/search?q="$1"" | jq -r '.[].type')
+    done < <(echo "$1" | jq -r '.[].type')
 }
 
 gettitles () {
     while read -r line; do
         titles+=("$line")
-    done < <(curl -s "https://"$instance"/api/v1/search?q="$1"" | jq -r '.[].title')
+    done < <(echo "$1" | jq -r '.[].title')
 }
 
 getvideoids () {
     while read -r line; do
         videoids+=("$line")
-    done < <(curl -s "https://"$instance"/api/v1/search?q="$1"" | jq -r '.[].videoId')
+    done < <(echo "$1" | jq -r '.[].videoId')
 }
 
 getauthors () {
     while read -r line; do
         authors+=("$line")
-    done < <(curl -s "https://"$instance"/api/v1/search?q="$1"" | jq -r '.[].author')
+    done < <(echo "$1" | jq -r '.[].author')
 }
 
 printresults () {
     for ((i=0; i<${#videoids[@]}; i++)); do
-        if [[ "${types[$i]}" == *"video"* ]]; then
+        if [[ "${types[$i]}" -eq "video" ]]; then
             printresult "$i"
         fi
     done
@@ -44,18 +44,17 @@ printresult () {
 }
 
 prepareresults () {
-    echo "$(echo "$@" | sed "s/\s/-/g")"
+    echo "$(echo "$@" | sed "s/\s/+/g")"
 }
 
 search () {
     string=$(prepareresults "$@")
-    printf "Getting video URLS...\n"
-    getvideoids "$string"
-    printf "Getting video titles...\n"
-    gettitles "$string"
-    printf "Getting video details...\n"
-    getauthors "$string"
-    gettypes "$string"
+    printf "Getting video data...\n"
+    jsondata=$(curl -s https://"$instance"/api/v1/search?q="$string")
+    getvideoids "$jsondata"
+    gettitles "$jsondata"
+    getauthors "$jsondata"
+    gettypes "$jsondata"
     printresults 
 }
 
