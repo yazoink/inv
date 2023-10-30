@@ -1,8 +1,8 @@
 #!/bin/bash
 # deps: jq, curl
 
-instance="vid.priv.au"
-player="mpv"
+invcfg=""$HOME"/.config/inv/inv.conf"
+source $invcfg
 type="0"
 declare -a types
 declare -a titles
