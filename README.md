@@ -2,7 +2,7 @@
 watch invidious from the terminal
 
 ### usage
-inv <options> <query>
+inv (options) (query)  
 Options:  
   --help, -h        Show usage  
   --search, -s      Search videos (default option)  
