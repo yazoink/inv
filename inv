@@ -1,8 +1,10 @@
 #!/bin/bash
 # deps: jq, curl
 
-invcfg=""$HOME"/.config/inv/inv.conf"
-source $invcfg
+instance="vid.priv.au"
+player="mpv"
+invcfg="$HOME/.config/inv/inv.conf"
+source "$invcfg"
 type="0"
 declare -a types
 declare -a titles
@@ -26,14 +28,14 @@ getdata () {
 
 printresults () {
     for ((i=1; i<${#videoids[@]}; i++)); do
-        if [[ "${types[$i]}" -eq "video" ]] || [[ "${types[$i]}" -eq "shortVideo" ]]; then
+        if [[ "${types[$i]}" == "video" ]] || [[ "${types[$i]}" == "shortVideo" ]]; then
             printresult "$i"
         fi
     done
 }
 
 printresult () {
-        printf "\033[1;37m"$i") %s\033[0m \033[0;34m[%s]\033[0m\n\t\033[0;35mhttps://%s/watch?v=%s\033[0m\n\n" "${titles[$1]}" "${authors[$1]}" "$instance" "${videoids[$1]}"
+        printf "\033[1;37m$i) %s\033[0m \033[0;34m[%s]\033[0m\n\t\033[0;35mhttps://%s/watch?v=%s\033[0m\n\n" "${titles[$1]}" "${authors[$1]}" "$instance" "${videoids[$1]}"
 }
 
 prepareresults () {
@@ -58,14 +60,14 @@ getjsondata () {
 getvideos () {
     string=$(prepareresults "$@")
     printf "Getting video data...\n"
-    jsondata=$(getjsondata $string)
+    jsondata=$(getjsondata "$string")
     getdata "$jsondata"
     printresults
     printf "Open in %s? (number or blank to exit) " "$player"
     read answer
     if isnum "$answer" && [[ "$answer" -le "${#videoids[@]}" ]]; then
-        i=$(((answer--)))
-        "$player" https://"$instance"/watch?v=${videoids[i]}
+        i=$((answer--))
+        "$player" https://"$instance"/watch?v="${videoids[i]}"
     else
         printf "Exiting.\n"
     fi
@@ -82,8 +84,8 @@ usage () {
 
 case "$1" in
     --help | -h) usage ;;
-    --popular | -p) type="popular" && getvideos ${@:2} ;;
-    --trending | -t) type="trending" && getvideos ${@:2} ;;
-    --search | -s) type="search" && getvideos ${@:2} ;;
+    --popular | -p) type="popular" && getvideos "${@:2}" ;;
+    --trending | -t) type="trending" && getvideos "${@:2}" ;;
+    --search | -s) type="search" && getvideos "${@:2}" ;;
     * ) type="search" && getvideos "$@" ;;
 esac
