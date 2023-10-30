@@ -83,7 +83,7 @@ usage () {
 }
 
 case "$1" in
-    --help | -h) usage ;;
+    --help | -h | "") usage ;;
     --popular | -p) type="popular" && getvideos "${@:2}" ;;
     --trending | -t) type="trending" && getvideos "${@:2}" ;;
     --search | -s) type="search" && getvideos "${@:2}" ;;
