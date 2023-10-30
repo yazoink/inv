@@ -49,9 +49,9 @@ isnum () {
 
 getjsondata () {
     case "$type" in
-        search ) curl -s https://"$instance"/api/v1/search?q="$1" ;;
-        popular ) curl -s https://"$instance"/api/v1/popular ;;
-        trending ) curl -s https://"$instance"/api/v1/trending ;;
+        search) curl -s https://"$instance"/api/v1/search?q="$1" ;;
+        popular) curl -s https://"$instance"/api/v1/popular ;;
+        trending) curl -s https://"$instance"/api/v1/trending ;;
     esac
 }
 
@@ -81,9 +81,9 @@ usage () {
 }
 
 case "$1" in
-    --help | -h ) usage ;;
-    --popular | -p ) type="popular" && getvideos ${@:2} ;;
-    --trending | -t ) type="trending" && getvideos ${@:2} ;;
-    --search | -s ) type="search" && getvideos ${@:2} ;;
+    --help | -h) usage ;;
+    --popular | -p) type="popular" && getvideos ${@:2} ;;
+    --trending | -t) type="trending" && getvideos ${@:2} ;;
+    --search | -s) type="search" && getvideos ${@:2} ;;
     * ) type="search" && getvideos "$@" ;;
 esac
