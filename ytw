@@ -2,37 +2,29 @@
 # deps: jq, curl
 
 instance=vid.priv.au
+player="mpv"
 declare -a types
 declare -a titles
 declare -a videoids
 declare -a authors
 
-gettypes () {
+getdata () {
     while read -r line; do
         types+=("$line")
     done < <(echo "$1" | jq -r '.[].type')
-}
-
-gettitles () {
     while read -r line; do
         titles+=("$line")
     done < <(echo "$1" | jq -r '.[].title')
-}
-
-getvideoids () {
     while read -r line; do
         videoids+=("$line")
     done < <(echo "$1" | jq -r '.[].videoId')
-}
-
-getauthors () {
     while read -r line; do
         authors+=("$line")
     done < <(echo "$1" | jq -r '.[].author')
 }
 
 printresults () {
-    for ((i=0; i<${#videoids[@]}; i++)); do
+    for ((i=1; i<${#videoids[@]}; i++)); do
         if [[ "${types[$i]}" -eq "video" ]]; then
             printresult "$i"
         fi
@@ -47,15 +39,27 @@ prepareresults () {
     echo "$(echo "$@" | sed "s/\s/+/g")"
 }
 
+isnum () {
+    case "$1" in
+        *[!0-9]*|"") return 1;;
+        *) return 0;;
+    esac
+}
+
 search () {
     string=$(prepareresults "$@")
     printf "Getting video data...\n"
     jsondata=$(curl -s https://"$instance"/api/v1/search?q="$string")
-    getvideoids "$jsondata"
-    gettitles "$jsondata"
-    getauthors "$jsondata"
-    gettypes "$jsondata"
-    printresults 
+    getdata "$jsondata"
+    printresults
+    printf "Open in %s? (number or blank to exit) " "$player"
+    read answer
+    if isnum "$answer" && [[ "$answer" -le "${#videoids[@]}" ]]; then
+        i=$(((answer--)))
+        "$player" https://"$instance"/watch?v=${videoids[i]}
+    else
+        printf "Exiting.\n"
+    fi
 }
 
 search "$@"
