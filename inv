@@ -38,7 +38,7 @@ getdata () {
 }
 
 printresults () {
-    for ((i=1; i<${#videoids[@]}; i++)); do
+    for ((i=${#videoids[@]}; i>0; i--)); do
         if [[ "${types[$i]}" == "video" ]] || [[ "${types[$i]}" == "shortVideo" ]]; then
             printresult "$i"
         fi
